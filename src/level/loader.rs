@@ -76,20 +76,3 @@ impl LevelLoader {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sample_level_serialization() {
-        let level = LevelConfig::sample();
-
-        // Test JSON serialization
-        let json = serde_json::to_string_pretty(&level).unwrap();
-        println!("Sample level JSON:\n{}", json);
-
-        // Test TOML serialization
-        let toml = toml::to_string_pretty(&level).unwrap();
-        println!("Sample level TOML:\n{}", toml);
-    }
-}

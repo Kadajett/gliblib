@@ -18,15 +18,7 @@ fn main() {
     let mut world = World::new();
 
     // Load sample level (you can also load from file)
-    let level = LevelConfig::sample();
-
-    // Optionally save the sample level to see the format
-    if let Err(e) = LevelLoader::save_to_toml(&level, "levels/sample.toml") {
-        println!("Warning: Could not save sample level to TOML: {}", e);
-    }
-    if let Err(e) = LevelLoader::save_to_json(&level, "levels/sample.json") {
-        println!("Warning: Could not save sample level to JSON: {}", e);
-    }
+    let level = LevelLoader::load_from_json("levels/sample.json").unwrap();
 
     // Spawn entities from level
     LevelLoader::spawn_entities(&level, &mut world);
