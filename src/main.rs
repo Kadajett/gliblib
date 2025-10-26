@@ -9,6 +9,7 @@ use level::*;
 use ecs::entity::World;
 use ecs::components::{Transform as EcsTransform, Camera as EcsCamera};
 use ecs::systems::*;
+use ecs::physics::{PhysicsSystem, CollisionSystem};
 
 fn main() {
     // Initialize window
@@ -49,6 +50,8 @@ fn main() {
 
     // Create systems
     let mut movement_system = MovementSystem;
+    let mut physics_system = PhysicsSystem::default();
+    let mut collision_system = CollisionSystem::new();
     let player_input_system = PlayerInputSystem;
     let first_person_camera_system = FirstPersonCameraSystem;
     let mut render_system = RenderSystem::new();
@@ -68,6 +71,8 @@ fn main() {
         first_person_camera_system.update(&mut world, &rl);
         player_input_system.update(&mut world, &rl);
         movement_system.update(&mut world, delta_time);
+        physics_system.update(&mut world, delta_time);
+        collision_system.update(&mut world, delta_time);
 
         // Get camera from entity
         let camera3d = if let Some(camera_entity) = world.get_entity(camera_entity_id) {

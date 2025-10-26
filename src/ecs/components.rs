@@ -171,6 +171,135 @@ pub struct Camera {
     pub mouse_sensitivity: f32,
 }
 
+/// Rigidbody component for physics simulation
+#[derive(Debug, Clone, Copy)]
+pub struct Rigidbody {
+    /// Mass of the object (0.0 = infinite mass/static)
+    pub mass: f32,
+    /// Whether gravity affects this object
+    pub use_gravity: bool,
+    /// Velocity from physics (separate from manual velocity)
+    pub velocity: Vector3,
+    /// Accumulated forces to apply this frame
+    pub force: Vector3,
+    /// Drag coefficient (air resistance) - 0.0 = no drag, higher = more drag
+    pub drag: f32,
+    /// Is the object currently grounded/touching floor
+    pub is_grounded: bool,
+}
+
+impl Default for Rigidbody {
+    fn default() -> Self {
+        Self {
+            mass: 1.0,
+            use_gravity: true,
+            velocity: Vector3::zero(),
+            force: Vector3::zero(),
+            drag: 0.01,
+            is_grounded: false,
+        }
+    }
+}
+
+impl Rigidbody {
+    pub fn new(mass: f32) -> Self {
+        Self {
+            mass,
+            ..Default::default()
+        }
+    }
+
+    pub fn kinematic() -> Self {
+        Self {
+            mass: 0.0,
+            use_gravity: false,
+            ..Default::default()
+        }
+    }
+
+    pub fn with_gravity(mut self, use_gravity: bool) -> Self {
+        self.use_gravity = use_gravity;
+        self
+    }
+
+    pub fn with_drag(mut self, drag: f32) -> Self {
+        self.drag = drag;
+        self
+    }
+
+    pub fn add_force(&mut self, force: Vector3) {
+        self.force = self.force + force;
+    }
+
+    pub fn is_static(&self) -> bool {
+        self.mass == 0.0
+    }
+}
+
+/// Collider shapes for collision detection
+#[derive(Debug, Clone, Copy)]
+pub enum ColliderShape {
+    Box { size: Vector3 },
+    Sphere { radius: f32 },
+    Capsule { radius: f32, height: f32 },
+}
+
+/// Collider component for collision detection
+#[derive(Debug, Clone, Copy)]
+pub struct Collider {
+    pub shape: ColliderShape,
+    /// Is this a trigger (no physics response, just detection)
+    pub is_trigger: bool,
+    /// Restitution/bounciness (0.0 = no bounce, 1.0 = perfect bounce)
+    pub restitution: f32,
+    /// Friction coefficient (0.0 = no friction, 1.0 = high friction)
+    pub friction: f32,
+}
+
+impl Collider {
+    pub fn box_collider(size: Vector3) -> Self {
+        Self {
+            shape: ColliderShape::Box { size },
+            is_trigger: false,
+            restitution: 0.0,
+            friction: 0.5,
+        }
+    }
+
+    pub fn sphere_collider(radius: f32) -> Self {
+        Self {
+            shape: ColliderShape::Sphere { radius },
+            is_trigger: false,
+            restitution: 0.0,
+            friction: 0.5,
+        }
+    }
+
+    pub fn capsule_collider(radius: f32, height: f32) -> Self {
+        Self {
+            shape: ColliderShape::Capsule { radius, height },
+            is_trigger: false,
+            restitution: 0.0,
+            friction: 0.5,
+        }
+    }
+
+    pub fn as_trigger(mut self) -> Self {
+        self.is_trigger = true;
+        self
+    }
+
+    pub fn with_restitution(mut self, restitution: f32) -> Self {
+        self.restitution = restitution;
+        self
+    }
+
+    pub fn with_friction(mut self, friction: f32) -> Self {
+        self.friction = friction;
+        self
+    }
+}
+
 impl Default for Camera {
     fn default() -> Self {
         Self {

@@ -69,6 +69,14 @@ impl LevelLoader {
                 builder = builder.with_model(model_config.to_model());
             }
 
+            if let Some(rigidbody_config) = &entity_config.rigidbody {
+                builder = builder.with_rigidbody(rigidbody_config.to_rigidbody());
+            }
+
+            if let Some(collider_config) = &entity_config.collider {
+                builder = builder.with_collider(collider_config.to_collider());
+            }
+
             match entity_config.entity_type {
                 EntityType::Player => builder = builder.as_player(),
                 EntityType::Enemy => builder = builder.as_enemy(),

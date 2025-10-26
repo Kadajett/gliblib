@@ -20,6 +20,10 @@ pub struct Entity {
     pub name: Option<Name>,
     pub camera: Option<Camera>,
 
+    // Physics components
+    pub rigidbody: Option<Rigidbody>,
+    pub collider: Option<Collider>,
+
     // Tag components
     pub is_player: bool,
     pub is_enemy: bool,
@@ -69,6 +73,8 @@ impl Entity {
             health: None,
             name: None,
             camera: None,
+            rigidbody: None,
+            collider: None,
             is_player: false,
             is_enemy: false,
             lifetime: None,
@@ -129,6 +135,16 @@ impl Entity {
 
     pub fn with_camera(mut self, camera: Camera) -> Self {
         self.camera = Some(camera);
+        self
+    }
+
+    pub fn with_rigidbody(mut self, rigidbody: Rigidbody) -> Self {
+        self.rigidbody = Some(rigidbody);
+        self
+    }
+
+    pub fn with_collider(mut self, collider: Collider) -> Self {
+        self.collider = Some(collider);
         self
     }
 
@@ -256,6 +272,16 @@ impl<'a> EntityBuilder<'a> {
 
     pub fn with_model(mut self, model: Model) -> Self {
         self.entity.model = Some(model);
+        self
+    }
+
+    pub fn with_rigidbody(mut self, rigidbody: Rigidbody) -> Self {
+        self.entity.rigidbody = Some(rigidbody);
+        self
+    }
+
+    pub fn with_collider(mut self, collider: Collider) -> Self {
+        self.entity.collider = Some(collider);
         self
     }
 

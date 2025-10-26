@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use raylib::prelude::*;
-use crate::ecs::components::{Transform as EcsTransform, Renderable, RenderShape, Velocity, Model};
+use crate::ecs::components::{Transform as EcsTransform, Renderable, RenderShape, Velocity, Model, Rigidbody, Collider, ColliderShape};
 
 /// Level configuration that can be loaded from TOML/JSON
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,6 +49,8 @@ pub struct EntityConfig {
     pub velocity: Option<VelocityConfig>,
     pub health: Option<f32>,
     pub model: Option<ModelConfig>,
+    pub rigidbody: Option<RigidbodyConfig>,
+    pub collider: Option<ColliderConfig>,
     pub entity_type: EntityType,
 }
 
@@ -170,6 +172,60 @@ impl VelocityConfig {
         Velocity {
             linear: Vector3::new(self.linear[0], self.linear[1], self.linear[2]),
             angular: Vector3::new(self.angular[0], self.angular[1], self.angular[2]),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RigidbodyConfig {
+    #[serde(default = "default_mass")]
+    pub mass: f32,
+    #[serde(default = "default_true")]
+    pub use_gravity: bool,
+    #[serde(default = "default_drag")]
+    pub drag: f32,
+}
+
+fn default_mass() -> f32 {
+    1.0
+}
+
+fn default_true() -> bool {
+    true
+}
+
+fn default_drag() -> f32 {
+    0.01
+}
+
+impl RigidbodyConfig {
+    pub fn to_rigidbody(&self) -> Rigidbody {
+        Rigidbody::new(self.mass)
+            .with_gravity(self.use_gravity)
+            .with_drag(self.drag)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ColliderConfig {
+    Box { size: [f32; 3] },
+    Sphere { radius: f32 },
+    Capsule { radius: f32, height: f32 },
+}
+
+impl ColliderConfig {
+    pub fn to_collider(&self) -> Collider {
+        match self {
+            ColliderConfig::Box { size } => {
+                Collider::box_collider(Vector3::new(size[0], size[1], size[2]))
+            }
+            ColliderConfig::Sphere { radius } => {
+                Collider::sphere_collider(*radius)
+            }
+            ColliderConfig::Capsule { radius, height } => {
+                Collider::capsule_collider(*radius, *height)
+            }
         }
     }
 }
