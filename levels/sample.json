@@ -97,6 +97,23 @@
       "velocity": null,
       "health": null,
       "entity_type": "prop"
+    },
+    {
+      "name": "Castle Model",
+      "transform": {
+        "position": [ 8.0, 0.0, 0.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 1.0, 1.0, 1.0 ]
+      },
+      "model": {
+        "model_path": "resources/castle.obj",
+        "texture_path": "resources/castle_diffuse.png",
+        "tint": [ 255, 255, 255, 255 ],
+        "scale": 1.0
+      },
+      "velocity": null,
+      "health": null,
+      "entity_type": "prop"
     }
   ]
 }

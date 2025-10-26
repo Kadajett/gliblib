@@ -65,6 +65,10 @@ impl LevelLoader {
                 builder = builder.with_health(Health::new(health));
             }
 
+            if let Some(model_config) = &entity_config.model {
+                builder = builder.with_model(model_config.to_model());
+            }
+
             match entity_config.entity_type {
                 EntityType::Player => builder = builder.as_player(),
                 EntityType::Enemy => builder = builder.as_enemy(),

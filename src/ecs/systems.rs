@@ -1,10 +1,74 @@
 use raylib::prelude::*;
+use std::collections::HashMap;
 use super::entity::World;
-use super::components::{Transform, Velocity, Renderable, RenderShape, Camera};
+use super::components::{Transform, RenderShape};
 
 /// System trait - all systems implement this
 pub trait System {
     fn update(&mut self, world: &mut World, delta_time: f32);
+}
+
+/// Cache for loaded models and textures to avoid reloading
+pub struct ModelCache {
+    models: HashMap<String, raylib::ffi::Model>,
+    textures: HashMap<String, raylib::ffi::Texture2D>,
+}
+
+impl ModelCache {
+    pub fn new() -> Self {
+        Self {
+            models: HashMap::new(),
+            textures: HashMap::new(),
+        }
+    }
+
+    pub fn get_model(&mut self, path: &str) -> Option<raylib::ffi::Model> {
+        if !self.models.contains_key(path) {
+            // Try to load the model
+            unsafe {
+                let model = raylib::ffi::LoadModel(path.as_ptr() as *const i8);
+                if model.meshes.is_null() {
+                    return None; // Failed to load
+                }
+                self.models.insert(path.to_string(), model);
+            }
+        }
+        self.models.get(path).copied()
+    }
+
+    pub fn get_texture(&mut self, path: &str) -> Option<raylib::ffi::Texture2D> {
+        if !self.textures.contains_key(path) {
+            // Try to load the texture
+            unsafe {
+                let texture = raylib::ffi::LoadTexture(path.as_ptr() as *const i8);
+                if texture.id == 0 {
+                    return None; // Failed to load
+                }
+                self.textures.insert(path.to_string(), texture);
+            }
+        }
+        self.textures.get(path).copied()
+    }
+
+    pub fn cleanup(&mut self) {
+        // Unload all models and textures
+        for (_, model) in self.models.drain() {
+            unsafe {
+                raylib::ffi::UnloadModel(model);
+            }
+        }
+        for (_, texture) in self.textures.drain() {
+            unsafe {
+                raylib::ffi::UnloadTexture(texture);
+            }
+        }
+    }
+}
+
+impl Drop for ModelCache {
+    fn drop(&mut self) {
+        self.cleanup();
+    }
 }
 
 /// Movement system - applies velocity to transform
@@ -27,10 +91,18 @@ impl System for MovementSystem {
 }
 
 /// Render system - draws all renderable entities
-pub struct RenderSystem;
+pub struct RenderSystem {
+    model_cache: ModelCache,
+}
 
 impl RenderSystem {
-    pub fn render(&self, world: &World, d: &mut RaylibMode3D<RaylibDrawHandle>) {
+    pub fn new() -> Self {
+        Self {
+            model_cache: ModelCache::new(),
+        }
+    }
+
+    pub fn render(&mut self, world: &World, d: &mut RaylibMode3D<RaylibDrawHandle>) {
         for entity in world.entities() {
             if let (Some(transform), Some(renderable)) = (&entity.transform, &entity.renderable) {
                 if !renderable.visible {
@@ -122,6 +194,50 @@ impl RenderSystem {
                         // For now, just draw a placeholder cube
                         d.draw_cube_v(transform.position, Vector3::one(), Color::MAGENTA);
                     }
+                }
+            }
+
+            // Handle model component rendering
+            if let (Some(transform), Some(model)) = (&entity.transform, &entity.model) {
+                // Load model and texture separately to avoid borrowing conflicts
+                let raylib_model = self.model_cache.get_model(&model.model_path);
+                let texture = if let Some(texture_path) = &model.texture_path {
+                    self.model_cache.get_texture(texture_path)
+                } else {
+                    None
+                };
+
+                if let Some(raylib_model) = raylib_model {
+                    // Apply texture if specified
+                    if let Some(texture) = texture {
+                        unsafe {
+                            // Set the diffuse texture for the first material
+                            if !raylib_model.materials.is_null() && raylib_model.materialCount > 0 {
+                                let material = &mut *raylib_model.materials;
+                                if !material.maps.is_null() {
+                                    let maps = &mut *material.maps;
+                                    (*maps).texture = texture;
+                                }
+                            }
+                        }
+                    }
+
+                    // Draw the model with transform
+                    unsafe {
+                        raylib::ffi::rlPushMatrix();
+                        raylib::ffi::rlTranslatef(transform.position.x, transform.position.y, transform.position.z);
+                        raylib::ffi::rlRotatef(transform.rotation.x.to_degrees(), 1.0, 0.0, 0.0);
+                        raylib::ffi::rlRotatef(transform.rotation.y.to_degrees(), 0.0, 1.0, 0.0);
+                        raylib::ffi::rlRotatef(transform.rotation.z.to_degrees(), 0.0, 0.0, 1.0);
+                        raylib::ffi::rlScalef(transform.scale.x * model.scale, transform.scale.y * model.scale, transform.scale.z * model.scale);
+                        
+                        raylib::ffi::DrawModel(raylib_model, Vector3::zero().into(), model.scale, model.tint.into());
+                        
+                        raylib::ffi::rlPopMatrix();
+                    }
+                } else {
+                    // Fallback: draw a placeholder cube if model fails to load
+                    d.draw_cube_v(transform.position, Vector3::one(), Color::MAGENTA);
                 }
             }
         }

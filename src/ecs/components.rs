@@ -46,6 +46,41 @@ pub enum RenderShape {
     Model { path: String },
 }
 
+/// Model component for 3D models with textures
+#[derive(Debug, Clone)]
+pub struct Model {
+    pub model_path: String,
+    pub texture_path: Option<String>,
+    pub tint: Color,
+    pub scale: f32,
+}
+
+impl Model {
+    pub fn new(model_path: String) -> Self {
+        Self {
+            model_path,
+            texture_path: None,
+            tint: Color::WHITE,
+            scale: 1.0,
+        }
+    }
+
+    pub fn with_texture(mut self, texture_path: String) -> Self {
+        self.texture_path = Some(texture_path);
+        self
+    }
+
+    pub fn with_tint(mut self, tint: Color) -> Self {
+        self.tint = tint;
+        self
+    }
+
+    pub fn with_scale(mut self, scale: f32) -> Self {
+        self.scale = scale;
+        self
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Renderable {
     pub shape: RenderShape,

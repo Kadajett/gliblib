@@ -54,6 +54,9 @@ pub struct Entity {
     // Example components - Utility
     pub parent: Option<Parent>,
     pub child: Option<Child>,
+
+    // Model component
+    pub model: Option<Model>,
 }
 
 impl Entity {
@@ -85,6 +88,7 @@ impl Entity {
             marked_for_death: None,
             parent: None,
             child: None,
+            model: None,
         }
     }
 
@@ -125,6 +129,11 @@ impl Entity {
 
     pub fn with_camera(mut self, camera: Camera) -> Self {
         self.camera = Some(camera);
+        self
+    }
+
+    pub fn with_model(mut self, model: Model) -> Self {
+        self.model = Some(model);
         self
     }
 }
@@ -242,6 +251,11 @@ impl<'a> EntityBuilder<'a> {
 
     pub fn with_camera(mut self, camera: Camera) -> Self {
         self.entity.camera = Some(camera);
+        self
+    }
+
+    pub fn with_model(mut self, model: Model) -> Self {
+        self.entity.model = Some(model);
         self
     }
 

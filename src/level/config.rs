@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use raylib::prelude::*;
-use crate::ecs::components::{Transform as EcsTransform, Renderable, RenderShape, Velocity};
+use crate::ecs::components::{Transform as EcsTransform, Renderable, RenderShape, Velocity, Model};
 
 /// Level configuration that can be loaded from TOML/JSON
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,6 +48,7 @@ pub struct EntityConfig {
     pub renderable: Option<RenderableConfig>,
     pub velocity: Option<VelocityConfig>,
     pub health: Option<f32>,
+    pub model: Option<ModelConfig>,
     pub entity_type: EntityType,
 }
 
@@ -120,6 +121,39 @@ impl RenderableConfig {
             shape,
             visible: true,
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelConfig {
+    pub model_path: String,
+    pub texture_path: Option<String>,
+    #[serde(default = "default_tint")]
+    pub tint: [u8; 4],
+    #[serde(default = "default_model_scale")]
+    pub scale: f32,
+}
+
+fn default_tint() -> [u8; 4] {
+    [255, 255, 255, 255]
+}
+
+fn default_model_scale() -> f32 {
+    1.0
+}
+
+impl ModelConfig {
+    pub fn to_model(&self) -> Model {
+        let mut model = Model::new(self.model_path.clone());
+        
+        if let Some(texture_path) = &self.texture_path {
+            model = model.with_texture(texture_path.clone());
+        }
+        
+        model = model.with_tint(Color::new(self.tint[0], self.tint[1], self.tint[2], self.tint[3]));
+        model = model.with_scale(self.scale);
+        
+        model
     }
 }
 

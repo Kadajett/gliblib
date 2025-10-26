@@ -51,7 +51,7 @@ fn main() {
     let mut movement_system = MovementSystem;
     let player_input_system = PlayerInputSystem;
     let first_person_camera_system = FirstPersonCameraSystem;
-    let render_system = RenderSystem;
+    let mut render_system = RenderSystem::new();
 
     println!("Controls:");
     println!("  WASD - Move forward/backward/strafe");
