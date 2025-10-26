@@ -9,6 +9,7 @@ pub mod skills;
 pub mod story;
 pub mod loot;
 pub mod entity;
+pub mod ui;
 
 pub use stats::*;
 pub use items::*;
@@ -18,3 +19,4 @@ pub use skills::*;
 pub use story::*;
 pub use loot::*;
 pub use entity::*;
+pub use ui::*;
