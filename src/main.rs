@@ -1,5 +1,6 @@
 mod ecs;
 mod level;
+pub mod rpg;
 
 use raylib::prelude::*;
 use level::*;
