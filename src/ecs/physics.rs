@@ -2,6 +2,7 @@ use raylib::prelude::*;
 use super::entity::World;
 use super::components::{Transform, Rigidbody, Collider, ColliderShape};
 use super::systems::System;
+use crate::terrain::Terrain;
 
 /// Physics system that applies gravity and integrates velocity
 pub struct PhysicsSystem {
@@ -70,6 +71,54 @@ pub struct Collision {
     pub entity_b: usize,
     pub normal: Vector3,
     pub penetration: f32,
+}
+
+/// Terrain collision system - keeps entities above terrain
+pub struct TerrainCollisionSystem;
+
+impl TerrainCollisionSystem {
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// Apply terrain collision to all entities with rigidbody
+    pub fn apply_terrain_collision(&self, world: &mut World, terrain: &Terrain) {
+        for entity in world.entities_mut() {
+            if let (Some(transform), Some(rigidbody)) = (&mut entity.transform, &mut entity.rigidbody) {
+                // Get terrain height at entity position
+                let terrain_height = terrain.get_height_at(transform.position.x, transform.position.z);
+
+                // Get entity bottom position (assuming collider height)
+                let entity_bottom = if let Some(collider) = &entity.collider {
+                    match collider.shape {
+                        ColliderShape::Box { size } => size.y / 2.0,
+                        ColliderShape::Sphere { radius } => radius,
+                        ColliderShape::Capsule { radius, .. } => radius,
+                    }
+                } else {
+                    0.5 // Default offset
+                };
+
+                let min_y = terrain_height + entity_bottom;
+
+                // If entity is below terrain, push it up and stop downward velocity
+                if transform.position.y < min_y {
+                    transform.position.y = min_y;
+
+                    // Stop downward velocity
+                    if rigidbody.velocity.y < 0.0 {
+                        rigidbody.velocity.y = 0.0;
+                    }
+
+                    // Mark as grounded
+                    rigidbody.is_grounded = true;
+                } else if transform.position.y < min_y + 0.1 {
+                    // Very close to ground
+                    rigidbody.is_grounded = true;
+                }
+            }
+        }
+    }
 }
 
 /// Collision detection and resolution system

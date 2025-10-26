@@ -1,16 +1,18 @@
 mod ecs;
 mod level;
 pub mod rpg;
+mod terrain;
 
 use raylib::prelude::*;
 use level::*;
 use rpg::*;
+use terrain::*;
 
 // Import ECS types explicitly to avoid conflicts with Raylib types
 use ecs::entity::World;
 use ecs::components::{Transform as EcsTransform, Camera as EcsCamera};
 use ecs::systems::*;
-use ecs::physics::{PhysicsSystem, CollisionSystem};
+use ecs::physics::{PhysicsSystem, CollisionSystem, TerrainCollisionSystem};
 
 fn main() {
     // Initialize window
@@ -49,10 +51,36 @@ fn main() {
             .build()
     };
 
+    // Generate terrain first (before positioning entities)
+    println!("Generating terrain...");
+    let terrain_config = TerrainConfig {
+        width: 150,
+        depth: 150,
+        cell_size: 2.0,
+        height_scale: 15.0,
+        octaves: 6,
+        persistence: 0.5,
+        lacunarity: 2.0,
+        noise_scale: 30.0,
+        seed: 12345,
+    };
+    let terrain = Terrain::generate(terrain_config);
+    println!("Terrain generated: {}x{} vertices", terrain.config.width, terrain.config.depth);
+
+    // Position player at correct terrain height
+    if let Some(player) = world.entities_mut().find(|e| e.is_player) {
+        if let Some(transform) = &mut player.transform {
+            let terrain_height = terrain.get_height_at(transform.position.x, transform.position.z);
+            transform.position.y = terrain_height + 2.0; // Offset by player height
+            println!("Player positioned at terrain height: {}", transform.position.y);
+        }
+    }
+
     // Create systems
     let mut movement_system = MovementSystem;
     let mut physics_system = PhysicsSystem::default();
     let mut collision_system = CollisionSystem::new();
+    let terrain_collision_system = TerrainCollisionSystem::new();
     let player_input_system = PlayerInputSystem;
     let first_person_camera_system = FirstPersonCameraSystem;
     let mut render_system = RenderSystem::new();
@@ -116,6 +144,7 @@ fn main() {
         player_input_system.update(&mut world, &rl);
         movement_system.update(&mut world, delta_time);
         physics_system.update(&mut world, delta_time);
+        terrain_collision_system.apply_terrain_collision(&mut world, &terrain);
         collision_system.update(&mut world, delta_time);
 
         // Get camera from entity
@@ -139,11 +168,11 @@ fn main() {
         {
             let mut d3 = d.begin_mode3D(camera3d);
 
+            // Render terrain
+            terrain.render(&mut d3);
+
             // Render all entities
             render_system.render(&world, &mut d3);
-
-            // Draw grid
-            d3.draw_grid(20, 1.0);
         }
 
         // Draw UI
