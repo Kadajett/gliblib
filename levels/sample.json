@@ -130,6 +130,15 @@
         "height": 3.0,
         "color": [ 253, 249, 0, 255 ]
       },
+      "rigidbody": {
+        "mass": 0.0,
+        "use_gravity": false,
+        "drag": 0.0
+      },
+      "collider": {
+        "type": "Box",
+        "size": [ 2.0, 3.0, 2.0 ]
+      },
       "velocity": null,
       "health": null,
       "entity_type": "prop"
