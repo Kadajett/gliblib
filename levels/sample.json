@@ -2,56 +2,23 @@
   "name": "Sample Level",
   "description": "A sample level with some basic entities",
   "camera": {
-    "position": [
-      15.0,
-      15.0,
-      15.0
-    ],
-    "target": [
-      0.0,
-      0.0,
-      0.0
-    ],
-    "up": [
-      0.0,
-      1.0,
-      0.0
-    ],
+    "position": [ 15.0, 15.0, 15.0 ],
+    "target": [ 0.0, 0.0, 0.0 ],
+    "up": [ 0.0, 1.0, 0.0 ],
     "fov": 45.0
   },
   "entities": [
     {
       "name": "Ground",
       "transform": {
-        "position": [
-          0.0,
-          -0.5,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          20.0,
-          1.0,
-          20.0
-        ]
+        "position": [ 0.0, -0.5, 0.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 20.0, 1.0, 20.0 ]
       },
       "renderable": {
         "type": "Cube",
-        "size": [
-          1.0,
-          1.0,
-          1.0
-        ],
-        "color": [
-          100,
-          100,
-          100,
-          255
-        ]
+        "size": [ 1.0, 1.0, 1.0 ],
+        "color": [ 100, 100, 100, 255 ]
       },
       "velocity": null,
       "health": null,
@@ -60,47 +27,18 @@
     {
       "name": "Player",
       "transform": {
-        "position": [
-          0.0,
-          2.0,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
+        "position": [ 0.0, 2.0, 0.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 1.0, 1.0, 1.0 ]
       },
       "renderable": {
         "type": "Cube",
-        "size": [
-          1.0,
-          2.0,
-          1.0
-        ],
-        "color": [
-          0,
-          121,
-          241,
-          255
-        ]
+        "size": [ 1.0, 2.0, 1.0 ],
+        "color": [ 0, 121, 241, 255 ]
       },
       "velocity": {
-        "linear": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "angular": [
-          0.0,
-          0.0,
-          0.0
-        ]
+        "linear": [ 0.0, 0.0, 0.0 ],
+        "angular": [ 0.0, 0.0, 0.0 ]
       },
       "health": 100.0,
       "entity_type": "player"
@@ -108,35 +46,14 @@
     {
       "name": "Red Cube",
       "transform": {
-        "position": [
-          3.0,
-          1.0,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
+        "position": [ 3.0, 1.0, 0.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 1.0, 1.0, 1.0 ]
       },
       "renderable": {
         "type": "Cube",
-        "size": [
-          2.0,
-          2.0,
-          2.0
-        ],
-        "color": [
-          230,
-          41,
-          55,
-          255
-        ]
+        "size": [ 2.0, 2.0, 2.0 ],
+        "color": [ 230, 41, 55, 255 ]
       },
       "velocity": null,
       "health": null,
@@ -145,43 +62,18 @@
     {
       "name": "Green Sphere",
       "transform": {
-        "position": [
-          -3.0,
-          1.5,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
+        "position": [ -3.0, 1.5, 0.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 1.0, 1.0, 1.0 ]
       },
       "renderable": {
         "type": "Sphere",
         "radius": 1.5,
-        "color": [
-          0,
-          228,
-          48,
-          255
-        ]
+        "color": [ 0, 228, 48, 255 ]
       },
       "velocity": {
-        "linear": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "angular": [
-          0.0,
-          1.0,
-          0.0
-        ]
+        "linear": [ 0.0, 0.0, 0.0 ],
+        "angular": [ 0.0, 1.0, 0.0 ]
       },
       "health": null,
       "entity_type": "prop"
@@ -189,32 +81,15 @@
     {
       "name": "Yellow Cylinder",
       "transform": {
-        "position": [
-          0.0,
-          1.5,
-          -5.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
+        "position": [ 0.0, 1.5, -5.0 ],
+        "rotation": [ 0.0, 0.0, 0.0 ],
+        "scale": [ 1.0, 1.0, 1.0 ]
       },
       "renderable": {
         "type": "Cylinder",
         "radius": 1.0,
         "height": 3.0,
-        "color": [
-          253,
-          249,
-          0,
-          255
-        ]
+        "color": [ 253, 249, 0, 255 ]
       },
       "velocity": null,
       "health": null,
