@@ -1,19 +1,58 @@
 use std::collections::HashMap;
 use super::components::*;
+use super::examples::*;
 
 pub type EntityId = usize;
 
 /// Simple entity - just an ID with components
+///
+/// This struct holds optional components for each entity.
+/// Not all entities need all components - only add what you need!
 #[derive(Debug, Clone)]
 pub struct Entity {
     pub id: EntityId,
+
+    // Core components
     pub transform: Option<Transform>,
     pub renderable: Option<Renderable>,
     pub velocity: Option<Velocity>,
     pub health: Option<Health>,
     pub name: Option<Name>,
+
+    // Tag components
     pub is_player: bool,
     pub is_enemy: bool,
+
+    // Example components - Timing
+    pub lifetime: Option<Lifetime>,
+    pub cooldown: Option<Cooldown>,
+
+    // Example components - Physics
+    pub gravity: Option<Gravity>,
+    pub bouncy: Option<Bouncy>,
+    pub drag: Option<Drag>,
+
+    // Example components - Combat
+    pub projectile: Option<Projectile>,
+    pub attack_ability: Option<AttackAbility>,
+
+    // Example components - AI
+    pub follow_target: Option<FollowTarget>,
+    pub patrol_path: Option<PatrolPath>,
+
+    // Example components - Visual Effects
+    pub fade_out: Option<FadeOut>,
+    pub auto_rotate: Option<AutoRotate>,
+
+    // Example components - Tags
+    pub collectible: Option<Collectible>,
+    pub obstacle: Option<Obstacle>,
+    pub damageable: Option<Damageable>,
+    pub marked_for_death: Option<MarkedForDeath>,
+
+    // Example components - Utility
+    pub parent: Option<Parent>,
+    pub child: Option<Child>,
 }
 
 impl Entity {
@@ -27,6 +66,23 @@ impl Entity {
             name: None,
             is_player: false,
             is_enemy: false,
+            lifetime: None,
+            cooldown: None,
+            gravity: None,
+            bouncy: None,
+            drag: None,
+            projectile: None,
+            attack_ability: None,
+            follow_target: None,
+            patrol_path: None,
+            fade_out: None,
+            auto_rotate: None,
+            collectible: None,
+            obstacle: None,
+            damageable: None,
+            marked_for_death: None,
+            parent: None,
+            child: None,
         }
     }
 
