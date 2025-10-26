@@ -115,6 +115,9 @@ fn main() {
     // Create RPG UI
     let mut rpg_ui = RpgUI::new();
 
+    // Debug flags
+    let mut show_bounding_boxes = false;
+
     println!("Controls:");
     println!("  WASD - Move forward/backward/strafe");
     println!("  Space - Move up");
@@ -122,6 +125,7 @@ fn main() {
     println!("  Mouse - Look around (first-person)");
     println!("  I - Toggle Inventory");
     println!("  C - Toggle Character Sheet");
+    println!("  B - Toggle Bounding Boxes");
     println!("  ESC - Exit");
 
     // Game loop
@@ -137,6 +141,9 @@ fn main() {
         }
         if rl.is_key_pressed(KeyboardKey::KEY_C) {
             rpg_ui.show_character_sheet = !rpg_ui.show_character_sheet;
+        }
+        if rl.is_key_pressed(KeyboardKey::KEY_B) {
+            show_bounding_boxes = !show_bounding_boxes;
         }
 
         // Update systems
@@ -172,7 +179,14 @@ fn main() {
             terrain.render(&mut d3);
 
             // Render all entities
+<<<<<<< HEAD
             render_system.render(&world, &mut d3);
+=======
+            render_system.render(&world, &mut d3, show_bounding_boxes);
+
+            // Draw grid
+            d3.draw_grid(20, 1.0);
+>>>>>>> 53ede003f87fa45e85441f5a720417c7369688d7
         }
 
         // Draw UI

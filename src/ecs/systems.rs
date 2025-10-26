@@ -1,7 +1,7 @@
 use raylib::prelude::*;
 use std::collections::HashMap;
 use super::entity::World;
-use super::components::{Transform, RenderShape};
+use super::components::{Transform, RenderShape, ColliderShape};
 
 /// System trait - all systems implement this
 pub trait System {
@@ -102,7 +102,7 @@ impl RenderSystem {
         }
     }
 
-    pub fn render(&mut self, world: &World, d: &mut RaylibMode3D<RaylibDrawHandle>) {
+    pub fn render(&mut self, world: &World, d: &mut RaylibMode3D<RaylibDrawHandle>, show_bounding_boxes: bool) {
         for entity in world.entities() {
             if let (Some(transform), Some(renderable)) = (&entity.transform, &entity.renderable) {
                 if !renderable.visible {
@@ -238,6 +238,54 @@ impl RenderSystem {
                 } else {
                     // Fallback: draw a placeholder cube if model fails to load
                     d.draw_cube_v(transform.position, Vector3::one(), Color::MAGENTA);
+                }
+            }
+        }
+
+        // Draw bounding boxes for entities with colliders if enabled
+        if show_bounding_boxes {
+            for entity in world.entities() {
+                if let (Some(transform), Some(collider)) = (&entity.transform, &entity.collider) {
+                    let bounding_box_color = Color::new(0, 0, 139, 100); // Dark blue with transparency
+                    
+                    match collider.shape {
+                        ColliderShape::Box { size } => {
+                            // Draw filled box for box colliders
+                            d.draw_cube_v(transform.position, size, bounding_box_color);
+                        }
+                        ColliderShape::Sphere { radius } => {
+                            // Draw filled sphere for sphere colliders
+                            d.draw_sphere(transform.position, radius, bounding_box_color);
+                        }
+                        ColliderShape::Capsule { radius, height } => {
+                            // For capsules, draw as a cylinder with spheres on top/bottom
+                            let half_height = height * 0.5;
+                            
+                            // Draw cylinder part
+                            d.draw_cylinder(
+                                transform.position + Vector3::new(0.0, -half_height, 0.0),
+                                radius,
+                                radius,
+                                height,
+                                16,
+                                bounding_box_color
+                            );
+                            
+                            // Draw top sphere
+                            d.draw_sphere(
+                                transform.position + Vector3::new(0.0, half_height, 0.0),
+                                radius,
+                                bounding_box_color
+                            );
+                            
+                            // Draw bottom sphere
+                            d.draw_sphere(
+                                transform.position + Vector3::new(0.0, -half_height, 0.0),
+                                radius,
+                                bounding_box_color
+                            );
+                        }
+                    }
                 }
             }
         }
