@@ -118,3 +118,64 @@ impl Health {
 /// Name/label component
 #[derive(Debug, Clone)]
 pub struct Name(pub String);
+
+/// Camera component for first-person view
+#[derive(Debug, Clone, Copy)]
+pub struct Camera {
+    /// Field of view in degrees
+    pub fov: f32,
+    /// Target offset from entity position (where the camera looks relative to position)
+    pub target_offset: Vector3,
+    /// Up vector (typically [0, 1, 0])
+    pub up: Vector3,
+    /// Yaw rotation in degrees (left/right)
+    pub yaw: f32,
+    /// Pitch rotation in degrees (up/down)
+    pub pitch: f32,
+    /// Mouse sensitivity for first-person controls
+    pub mouse_sensitivity: f32,
+}
+
+impl Default for Camera {
+    fn default() -> Self {
+        Self {
+            fov: 60.0,
+            target_offset: Vector3::new(0.0, 0.0, -1.0),
+            up: Vector3::new(0.0, 1.0, 0.0),
+            yaw: 0.0,
+            pitch: 0.0,
+            mouse_sensitivity: 0.1,
+        }
+    }
+}
+
+impl Camera {
+    pub fn new(fov: f32) -> Self {
+        Self {
+            fov,
+            ..Default::default()
+        }
+    }
+
+    pub fn with_sensitivity(mut self, sensitivity: f32) -> Self {
+        self.mouse_sensitivity = sensitivity;
+        self
+    }
+
+    /// Convert to Raylib Camera3D using the entity's transform
+    pub fn to_camera3d(&self, position: Vector3) -> Camera3D {
+        // Calculate the forward direction from yaw and pitch
+        let pitch_rad = self.pitch.to_radians();
+        let yaw_rad = self.yaw.to_radians();
+
+        let forward = Vector3::new(
+            yaw_rad.cos() * pitch_rad.cos(),
+            pitch_rad.sin(),
+            yaw_rad.sin() * pitch_rad.cos(),
+        );
+
+        let target = position + forward;
+
+        Camera3D::perspective(position, target, self.up, self.fov)
+    }
+}

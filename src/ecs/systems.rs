@@ -64,6 +64,33 @@ impl RenderSystem {
     }
 }
 
+/// First-person camera control system
+pub struct FirstPersonCameraSystem;
+
+impl FirstPersonCameraSystem {
+    pub fn update(&self, world: &mut World, rl: &RaylibHandle) {
+        for entity in world.entities_mut() {
+            if let Some(camera) = &mut entity.camera {
+                // Mouse look controls
+                let mouse_delta = rl.get_mouse_delta();
+
+                camera.yaw += mouse_delta.x * camera.mouse_sensitivity;
+                camera.pitch -= mouse_delta.y * camera.mouse_sensitivity;
+
+                // Clamp pitch to avoid gimbal lock
+                camera.pitch = camera.pitch.clamp(-89.0, 89.0);
+
+                // Normalize yaw to 0-360 range
+                if camera.yaw > 360.0 {
+                    camera.yaw -= 360.0;
+                } else if camera.yaw < 0.0 {
+                    camera.yaw += 360.0;
+                }
+            }
+        }
+    }
+}
+
 /// Simple player input system
 pub struct PlayerInputSystem;
 
@@ -77,18 +104,37 @@ impl PlayerInputSystem {
                     // Reset velocity
                     velocity.linear = Vector3::zero();
 
-                    // WASD movement
+                    // Get camera orientation if entity has a camera
+                    let (forward, right) = if let Some(camera) = &entity.camera {
+                        let yaw_rad = camera.yaw.to_radians();
+                        let forward = Vector3::new(
+                            yaw_rad.cos(),
+                            0.0,  // Don't move up/down with pitch
+                            yaw_rad.sin(),
+                        );
+                        let right = Vector3::new(
+                            (yaw_rad + std::f32::consts::FRAC_PI_2).cos(),
+                            0.0,
+                            (yaw_rad + std::f32::consts::FRAC_PI_2).sin(),
+                        );
+                        (forward, right)
+                    } else {
+                        // Default forward/right if no camera
+                        (Vector3::new(0.0, 0.0, -1.0), Vector3::new(1.0, 0.0, 0.0))
+                    };
+
+                    // WASD movement relative to camera direction
                     if rl.is_key_down(KeyboardKey::KEY_W) {
-                        velocity.linear.z = -speed;
+                        velocity.linear = velocity.linear + forward * speed;
                     }
                     if rl.is_key_down(KeyboardKey::KEY_S) {
-                        velocity.linear.z = speed;
+                        velocity.linear = velocity.linear - forward * speed;
                     }
                     if rl.is_key_down(KeyboardKey::KEY_A) {
-                        velocity.linear.x = -speed;
+                        velocity.linear = velocity.linear - right * speed;
                     }
                     if rl.is_key_down(KeyboardKey::KEY_D) {
-                        velocity.linear.x = speed;
+                        velocity.linear = velocity.linear + right * speed;
                     }
                     if rl.is_key_down(KeyboardKey::KEY_SPACE) {
                         velocity.linear.y = speed;

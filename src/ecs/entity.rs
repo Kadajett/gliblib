@@ -18,6 +18,7 @@ pub struct Entity {
     pub velocity: Option<Velocity>,
     pub health: Option<Health>,
     pub name: Option<Name>,
+    pub camera: Option<Camera>,
 
     // Tag components
     pub is_player: bool,
@@ -64,6 +65,7 @@ impl Entity {
             velocity: None,
             health: None,
             name: None,
+            camera: None,
             is_player: false,
             is_enemy: false,
             lifetime: None,
@@ -118,6 +120,11 @@ impl Entity {
 
     pub fn as_enemy(mut self) -> Self {
         self.is_enemy = true;
+        self
+    }
+
+    pub fn with_camera(mut self, camera: Camera) -> Self {
+        self.camera = Some(camera);
         self
     }
 }
@@ -230,6 +237,11 @@ impl<'a> EntityBuilder<'a> {
 
     pub fn as_enemy(mut self) -> Self {
         self.entity.is_enemy = true;
+        self
+    }
+
+    pub fn with_camera(mut self, camera: Camera) -> Self {
+        self.entity.camera = Some(camera);
         self
     }
 
