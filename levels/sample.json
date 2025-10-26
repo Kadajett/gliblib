@@ -55,7 +55,10 @@
         "size": [ 2.0, 2.0, 2.0 ],
         "color": [ 230, 41, 55, 255 ]
       },
-      "velocity": null,
+      "velocity": {
+        "linear": [ 0.0, 0.0, 0.0 ],
+        "angular": [ 2.0, 3.0, 1.5 ]
+      },
       "health": null,
       "entity_type": "prop"
     },

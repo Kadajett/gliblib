@@ -1,6 +1,6 @@
 use raylib::prelude::*;
 use super::entity::World;
-use super::components::*;
+use super::components::{Transform, Velocity, Renderable, RenderShape, Camera};
 
 /// System trait - all systems implement this
 pub trait System {
@@ -37,21 +37,85 @@ impl RenderSystem {
                     continue;
                 }
 
+                // Helper function to draw rotated shapes
+                let draw_with_rotation = |d: &mut RaylibMode3D<RaylibDrawHandle>,
+                                          transform: &Transform,
+                                          draw_fn: &dyn Fn(&mut RaylibMode3D<RaylibDrawHandle>)| {
+                    // For now, if there's any rotation, we'll draw using a different approach
+                    // Check if we have any rotation
+                    let has_rotation = transform.rotation.x.abs() > 0.001
+                                    || transform.rotation.y.abs() > 0.001
+                                    || transform.rotation.z.abs() > 0.001;
+
+                    if has_rotation {
+                        // Use unsafe FFI to access the lower-level rlPushMatrix/rlPopMatrix
+                        // This is necessary because raylib-rs doesn't expose these methods
+                        unsafe {
+                            raylib::ffi::rlPushMatrix();
+                            raylib::ffi::rlTranslatef(transform.position.x, transform.position.y, transform.position.z);
+                            raylib::ffi::rlRotatef(transform.rotation.x.to_degrees(), 1.0, 0.0, 0.0);
+                            raylib::ffi::rlRotatef(transform.rotation.y.to_degrees(), 0.0, 1.0, 0.0);
+                            raylib::ffi::rlRotatef(transform.rotation.z.to_degrees(), 0.0, 0.0, 1.0);
+                            raylib::ffi::rlScalef(transform.scale.x, transform.scale.y, transform.scale.z);
+                        }
+                        draw_fn(d);
+                        unsafe {
+                            raylib::ffi::rlPopMatrix();
+                        }
+                    } else {
+                        // No rotation, draw normally
+                        draw_fn(d);
+                    }
+                };
+
                 match &renderable.shape {
                     RenderShape::Cube { size, color } => {
                         let c = Color::new(color[0], color[1], color[2], color[3]);
-                        d.draw_cube_v(transform.position, *size, c);
-                        d.draw_cube_wires_v(transform.position, *size, Color::BLACK);
+                        let has_rotation = transform.rotation.x.abs() > 0.001
+                                        || transform.rotation.y.abs() > 0.001
+                                        || transform.rotation.z.abs() > 0.001;
+
+                        if has_rotation {
+                            draw_with_rotation(d, transform, &|d| {
+                                d.draw_cube_v(Vector3::zero(), *size, c);
+                                d.draw_cube_wires_v(Vector3::zero(), *size, Color::BLACK);
+                            });
+                        } else {
+                            d.draw_cube_v(transform.position, *size, c);
+                            d.draw_cube_wires_v(transform.position, *size, Color::BLACK);
+                        }
                     }
                     RenderShape::Sphere { radius, color } => {
                         let c = Color::new(color[0], color[1], color[2], color[3]);
-                        d.draw_sphere(transform.position, *radius, c);
-                        d.draw_sphere_wires(transform.position, *radius, 16, 16, Color::BLACK);
+                        let has_rotation = transform.rotation.x.abs() > 0.001
+                                        || transform.rotation.y.abs() > 0.001
+                                        || transform.rotation.z.abs() > 0.001;
+
+                        if has_rotation {
+                            draw_with_rotation(d, transform, &|d| {
+                                d.draw_sphere(Vector3::zero(), *radius, c);
+                                d.draw_sphere_wires(Vector3::zero(), *radius, 16, 16, Color::BLACK);
+                            });
+                        } else {
+                            d.draw_sphere(transform.position, *radius, c);
+                            d.draw_sphere_wires(transform.position, *radius, 16, 16, Color::BLACK);
+                        }
                     }
                     RenderShape::Cylinder { radius, height, color } => {
                         let c = Color::new(color[0], color[1], color[2], color[3]);
-                        d.draw_cylinder(transform.position, *radius, *radius, *height, 16, c);
-                        d.draw_cylinder_wires(transform.position, *radius, *radius, *height, 16, Color::BLACK);
+                        let has_rotation = transform.rotation.x.abs() > 0.001
+                                        || transform.rotation.y.abs() > 0.001
+                                        || transform.rotation.z.abs() > 0.001;
+
+                        if has_rotation {
+                            draw_with_rotation(d, transform, &|d| {
+                                d.draw_cylinder(Vector3::zero(), *radius, *radius, *height, 16, c);
+                                d.draw_cylinder_wires(Vector3::zero(), *radius, *radius, *height, 16, Color::BLACK);
+                            });
+                        } else {
+                            d.draw_cylinder(transform.position, *radius, *radius, *height, 16, c);
+                            d.draw_cylinder_wires(transform.position, *radius, *radius, *height, 16, Color::BLACK);
+                        }
                     }
                     RenderShape::Model { path: _ } => {
                         // TODO: Implement model loading and rendering
