@@ -1,0 +1,213 @@
+name = "Sample Level"
+description = "A sample level with some basic entities"
+
+[camera]
+position = [
+    15.0,
+    15.0,
+    15.0,
+]
+target = [
+    0.0,
+    0.0,
+    0.0,
+]
+up = [
+    0.0,
+    1.0,
+    0.0,
+]
+fov = 45.0
+
+[[entities]]
+name = "Ground"
+entity_type = "static"
+
+[entities.transform]
+position = [
+    0.0,
+    -0.5,
+    0.0,
+]
+rotation = [
+    0.0,
+    0.0,
+    0.0,
+]
+scale = [
+    20.0,
+    1.0,
+    20.0,
+]
+
+[entities.renderable]
+type = "Cube"
+size = [
+    1.0,
+    1.0,
+    1.0,
+]
+color = [
+    100,
+    100,
+    100,
+    255,
+]
+
+[[entities]]
+name = "Player"
+health = 100.0
+entity_type = "player"
+
+[entities.transform]
+position = [
+    0.0,
+    2.0,
+    0.0,
+]
+rotation = [
+    0.0,
+    0.0,
+    0.0,
+]
+scale = [
+    1.0,
+    1.0,
+    1.0,
+]
+
+[entities.renderable]
+type = "Cube"
+size = [
+    1.0,
+    2.0,
+    1.0,
+]
+color = [
+    0,
+    121,
+    241,
+    255,
+]
+
+[entities.velocity]
+linear = [
+    0.0,
+    0.0,
+    0.0,
+]
+angular = [
+    0.0,
+    0.0,
+    0.0,
+]
+
+[[entities]]
+name = "Red Cube"
+entity_type = "prop"
+
+[entities.transform]
+position = [
+    3.0,
+    1.0,
+    0.0,
+]
+rotation = [
+    0.0,
+    0.0,
+    0.0,
+]
+scale = [
+    1.0,
+    1.0,
+    1.0,
+]
+
+[entities.renderable]
+type = "Cube"
+size = [
+    2.0,
+    2.0,
+    2.0,
+]
+color = [
+    230,
+    41,
+    55,
+    255,
+]
+
+[[entities]]
+name = "Green Sphere"
+entity_type = "prop"
+
+[entities.transform]
+position = [
+    -3.0,
+    1.5,
+    0.0,
+]
+rotation = [
+    0.0,
+    0.0,
+    0.0,
+]
+scale = [
+    1.0,
+    1.0,
+    1.0,
+]
+
+[entities.renderable]
+type = "Sphere"
+radius = 1.5
+color = [
+    0,
+    228,
+    48,
+    255,
+]
+
+[entities.velocity]
+linear = [
+    0.0,
+    0.0,
+    0.0,
+]
+angular = [
+    0.0,
+    1.0,
+    0.0,
+]
+
+[[entities]]
+name = "Yellow Cylinder"
+entity_type = "prop"
+
+[entities.transform]
+position = [
+    0.0,
+    1.5,
+    -5.0,
+]
+rotation = [
+    0.0,
+    0.0,
+    0.0,
+]
+scale = [
+    1.0,
+    1.0,
+    1.0,
+]
+
+[entities.renderable]
+type = "Cylinder"
+radius = 1.0
+height = 3.0
+color = [
+    253,
+    249,
+    0,
+    255,
+]

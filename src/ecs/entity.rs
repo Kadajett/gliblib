@@ -1,0 +1,185 @@
+use std::collections::HashMap;
+use super::components::*;
+
+pub type EntityId = usize;
+
+/// Simple entity - just an ID with components
+#[derive(Debug, Clone)]
+pub struct Entity {
+    pub id: EntityId,
+    pub transform: Option<Transform>,
+    pub renderable: Option<Renderable>,
+    pub velocity: Option<Velocity>,
+    pub health: Option<Health>,
+    pub name: Option<Name>,
+    pub is_player: bool,
+    pub is_enemy: bool,
+}
+
+impl Entity {
+    pub fn new(id: EntityId) -> Self {
+        Self {
+            id,
+            transform: None,
+            renderable: None,
+            velocity: None,
+            health: None,
+            name: None,
+            is_player: false,
+            is_enemy: false,
+        }
+    }
+
+    pub fn with_transform(mut self, transform: Transform) -> Self {
+        self.transform = Some(transform);
+        self
+    }
+
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
+        self.renderable = Some(renderable);
+        self
+    }
+
+    pub fn with_velocity(mut self, velocity: Velocity) -> Self {
+        self.velocity = Some(velocity);
+        self
+    }
+
+    pub fn with_health(mut self, health: Health) -> Self {
+        self.health = Some(health);
+        self
+    }
+
+    pub fn with_name(mut self, name: String) -> Self {
+        self.name = Some(Name(name));
+        self
+    }
+
+    pub fn as_player(mut self) -> Self {
+        self.is_player = true;
+        self
+    }
+
+    pub fn as_enemy(mut self) -> Self {
+        self.is_enemy = true;
+        self
+    }
+}
+
+/// World holds all entities
+pub struct World {
+    entities: HashMap<EntityId, Entity>,
+    next_id: EntityId,
+}
+
+impl World {
+    pub fn new() -> Self {
+        Self {
+            entities: HashMap::new(),
+            next_id: 0,
+        }
+    }
+
+    pub fn create_entity(&mut self) -> EntityId {
+        let id = self.next_id;
+        self.next_id += 1;
+        self.entities.insert(id, Entity::new(id));
+        id
+    }
+
+    pub fn add_entity(&mut self, entity: Entity) -> EntityId {
+        let id = entity.id;
+        self.entities.insert(id, entity);
+        id
+    }
+
+    pub fn get_entity(&self, id: EntityId) -> Option<&Entity> {
+        self.entities.get(&id)
+    }
+
+    pub fn get_entity_mut(&mut self, id: EntityId) -> Option<&mut Entity> {
+        self.entities.get_mut(&id)
+    }
+
+    pub fn remove_entity(&mut self, id: EntityId) -> Option<Entity> {
+        self.entities.remove(&id)
+    }
+
+    pub fn entities(&self) -> impl Iterator<Item = &Entity> {
+        self.entities.values()
+    }
+
+    pub fn entities_mut(&mut self) -> impl Iterator<Item = &mut Entity> {
+        self.entities.values_mut()
+    }
+
+    pub fn clear(&mut self) {
+        self.entities.clear();
+        self.next_id = 0;
+    }
+
+    /// Builder-style entity creation
+    pub fn spawn(&mut self) -> EntityBuilder {
+        let id = self.next_id;
+        self.next_id += 1;
+        EntityBuilder {
+            entity: Entity::new(id),
+            world: self,
+        }
+    }
+}
+
+impl Default for World {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Builder pattern for creating entities
+pub struct EntityBuilder<'a> {
+    entity: Entity,
+    world: &'a mut World,
+}
+
+impl<'a> EntityBuilder<'a> {
+    pub fn with_transform(mut self, transform: Transform) -> Self {
+        self.entity.transform = Some(transform);
+        self
+    }
+
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
+        self.entity.renderable = Some(renderable);
+        self
+    }
+
+    pub fn with_velocity(mut self, velocity: Velocity) -> Self {
+        self.entity.velocity = Some(velocity);
+        self
+    }
+
+    pub fn with_health(mut self, health: Health) -> Self {
+        self.entity.health = Some(health);
+        self
+    }
+
+    pub fn with_name(mut self, name: String) -> Self {
+        self.entity.name = Some(Name(name));
+        self
+    }
+
+    pub fn as_player(mut self) -> Self {
+        self.entity.is_player = true;
+        self
+    }
+
+    pub fn as_enemy(mut self) -> Self {
+        self.entity.is_enemy = true;
+        self
+    }
+
+    pub fn build(self) -> EntityId {
+        let id = self.entity.id;
+        self.world.entities.insert(id, self.entity);
+        id
+    }
+}
